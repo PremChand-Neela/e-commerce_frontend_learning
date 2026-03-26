@@ -3,7 +3,11 @@ import { useCart } from "../context/CartContext";
 
 export default function ProductCard({ product }) {
   const { addToCart, cartItems } = useCart();
+  const productInCart = cartItems.find((item) => item.id === product.id);
 
+  const productQuantityLabel = productInCart
+    ? `(${productInCart.quantity})`
+    : "";
   return (
     <div className="product-card">
       <img
