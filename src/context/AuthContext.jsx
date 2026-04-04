@@ -1,4 +1,4 @@
-import { createContext, useState } from "react";
+import { createContext, useContext, useState } from "react";
 
 
 export const AuthContext = createContext(null);
@@ -8,7 +8,7 @@ export default function AuthProvider({children}) {
       ? { email: localStorage.getItem("currentUserEmail") }
       : null);
 
-    function signUp(){
+    function signUp(email, password){
         const users= JSON.parse(localStorage.getItem("users") || "[]")
 
         if(users.find((u)=> u.email === email)){
@@ -16,7 +16,7 @@ export default function AuthProvider({children}) {
         }
         
         const newUser = {email,password};
-        user.push(newUser);
+        users.push(newUser);
         localStorage.setItem("users",JSON.stringify(users))
         localStorage.setItem("currentUserEmail",email)
 
@@ -28,7 +28,7 @@ export default function AuthProvider({children}) {
         const users = JSON.parse(localStorage.getItem("users") || "[]")
         const user = users.find((u)=> u.email === email && u.password === password) 
         if(!user){
-            return {success:true,message:"Inavlid password or email"}
+            return {success:false,error:"Invalid email or password"}
         }
         localStorage.setItem("currentUserEmail",email)
         setUser({email})
@@ -46,4 +46,10 @@ export default function AuthProvider({children}) {
             {children}
         </AuthContext.Provider>
     );
+}
+
+export function useAuth(){
+    const context = useContext(AuthContext);
+
+    return context;
 }

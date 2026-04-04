@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useAuth } from "../context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 export default function Auth() {
-  const [mode, setMode] = useState("signup");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialMode = searchParams.get("mode") === "login" ? "login" : "signup";
+  const [mode, setMode] = useState(initialMode);
   const [error, setError] = useState(null);
 
   const navigate = useNavigate();
@@ -17,6 +19,16 @@ export default function Auth() {
     formState: { errors },
   } = useForm();
 
+  useEffect(() => {
+    const nextMode = searchParams.get("mode") === "login" ? "login" : "signup";
+    setMode(nextMode);
+    setError(null);
+  }, [searchParams]);
+
+  function switchMode(nextMode) {
+    setSearchParams({ mode: nextMode });
+  }
+
   function onSubmit(data) {
     setError(null);
     let result;
@@ -27,6 +39,11 @@ export default function Auth() {
     }
 
     if (result.success) {
+      alert(
+        mode === "signup"
+          ? "Signup successful!"
+          : "Login successful!"
+      );
       navigate("/");
     } else {
       setError(result.error);
@@ -90,7 +107,7 @@ export default function Auth() {
             {mode === "signup" ? (
               <p>
                 Already have an account?{" "}
-                <span className="auth-link" onClick={() => setMode("login")}>
+                <span className="auth-link" onClick={() => switchMode("login")}>
                   Login
                 </span>
               </p>
@@ -98,7 +115,7 @@ export default function Auth() {
               <p>
                 {" "}
                 Don't have an account?{" "}
-                <span className="auth-link" onClick={() => setMode("signup")}>
+                <span className="auth-link" onClick={() => switchMode("signup")}>
                   Sign Up
                 </span>
               </p>
